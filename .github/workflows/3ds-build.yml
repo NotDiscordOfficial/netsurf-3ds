@@ -27,6 +27,9 @@ jobs:
           install -m 0755 /tmp/makerom/makerom /usr/local/bin/makerom
           test -x /usr/local/bin/makerom
 
+      - name: Remove checked-in build outputs
+        run: make clean
+
       - name: Build Old 3DS compatible binary and CIA variants
         run: make -j"$(nproc)" build NOCIA=
 
