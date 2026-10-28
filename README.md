@@ -84,7 +84,9 @@ Set your 3DS IP address with `THREE_DS_IP` if needed (default: `192.168.86.230`)
 make deploy THREE_DS_IP=192.168.1.42
 ```
 
-To also build installable CIA files, install `makerom` from [Project_CTR](https://github.com/3DSGuy/Project_CTR/releases) and run `make build NOCIA=` (CIAs are skipped by default).
+To also build installable CIA files, install `makerom` from [Project_CTR](https://github.com/3DSGuy/Project_CTR/releases) and run `make build NOCIA=` (CIAs are skipped by default). The repository's GitHub Actions workflow builds the Old 3DS compatible 3DSX and both standard and HiMem CIA variants, validates the CIA containers, and uploads them as a downloadable artifact.
+
+The CIA exheaders retain the Old 3DS base memory profile and declare New 3DS-only CPU, L2 cache, and extra-memory settings separately. The HiMem CIA uses the additional memory profile. A successful build validates packaging only; JavaScript execution, DOM mutation, layout, and network APIs still require browser-level tests, with real-console checks needed for hardware-specific behavior.
 
 ## Special thanks
 
