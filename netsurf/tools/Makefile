@@ -44,11 +44,7 @@ $(TOOLROOT)/xxd: tools/xxd.c $(TOOLROOT)/created
 #
 $(TOOLROOT)/split-messages: tools/split-messages.c $(TOOLROOT)/created
 	$(VQ)echo "BUILD CC: $@"
-ifeq ($(HOST),Darwin)
 	$(Q)$(BUILD_CC) $(BUILD_CFLAGS) -D__getline=getline -I. -o $@ $< -lz
-else
-	$(Q)$(BUILD_CC) $(BUILD_CFLAGS) -I. -o $@ $< -lz
-endif
 
 
 # Build tool to convert image bitmaps to source code.
