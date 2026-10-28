@@ -416,9 +416,9 @@ ifeq ($(COMPONENT_TYPE),lib-static)
 else
 	$(VQ)$(ECHO) $(ECHOFLAGS) "    LINK: $@"
   ifeq ($(CXX_IN_BUILD),yes)
-	$(Q)$(CXX) -o $@ $(OBJECTS) -D__3DS__ -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft $(LDFLAGS) $(SHAREDLDFLAGS)
+	$(Q)$(CXX) -o $@ $(OBJECTS) $(LDFLAGS) $(SHAREDLDFLAGS)
   else
-	$(Q)$(CC) -o $@ $(OBJECTS) -D__3DS__ -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft $(LDFLAGS) $(SHAREDLDFLAGS)
+	$(Q)$(CC) -o $@ $(OBJECTS) $(LDFLAGS) $(SHAREDLDFLAGS)
   endif
 endif
 
