@@ -1138,11 +1138,32 @@ static void layout_minmax_block(
 
 
 /**
+ * Determine whether a box is outside normal flow and cannot contribute
+ * adjoining margins.
+ */
+static bool
+layout_box_out_of_flow(const struct box *box)
+{
+	if (box->type == BOX_FLOAT_LEFT || box->type == BOX_FLOAT_RIGHT) {
+		return true;
+	}
+
+	if (box->style == NULL) {
+		return false;
+	}
+
+	return css_computed_position(box->style) == CSS_POSITION_ABSOLUTE ||
+		css_computed_position(box->style) == CSS_POSITION_FIXED ||
+		css_computed_float(box->style) == CSS_FLOAT_LEFT ||
+		css_computed_float(box->style) == CSS_FLOAT_RIGHT;
+}
+
+/**
  * Find next block that current margin collapses to.
  *
  * \param  unit_len_ctx  Length conversion context
  * \param  box    box to start tree-order search from (top margin is included)
- * \param  block  box responsible for current block fromatting context
+ * \param  block  box responsible for current block formatting context
  * \param  viewport_height  height of viewport in px
  * \param  max_pos_margin  updated to to maximum positive margin encountered
  * \param  max_neg_margin  updated to to maximum negative margin encountered
@@ -1160,11 +1181,8 @@ layout_next_margin_block(const css_unit_ctx *unit_len_ctx,
 
 	while (box != NULL) {
 
-		if (box->type == BOX_INLINE_CONTAINER || (box->style &&
-				(css_computed_position(box->style) !=
-					CSS_POSITION_ABSOLUTE &&
-				 css_computed_position(box->style) !=
-					CSS_POSITION_FIXED))) {
+		if (box->type == BOX_INLINE_CONTAINER ||
+				(box->style && !layout_box_out_of_flow(box))) {
 			/* Not positioned */
 
 			/* Get margins */
@@ -1201,7 +1219,8 @@ layout_next_margin_block(const css_unit_ctx *unit_len_ctx,
 
 
 		/* Find next box */
-		if (box->type == BOX_BLOCK && !box->object && box->children &&
+		if (!layout_box_out_of_flow(box) && box->type == BOX_BLOCK &&
+				!box->object && box->children &&
 				box->style &&
 				css_computed_overflow_y(box->style) ==
 				CSS_OVERFLOW_VISIBLE) {
@@ -1212,15 +1231,13 @@ layout_next_margin_block(const css_unit_ctx *unit_len_ctx,
 				/* No more siblings:
 				 * Go up to first ancestor with a sibling. */
 				do {
-					/* Apply bottom margin */
-					if (*max_pos_margin <
-							box->margin[BOTTOM])
-						*max_pos_margin =
-							box->margin[BOTTOM];
-					else if (*max_neg_margin <
-							-box->margin[BOTTOM])
-						*max_neg_margin =
-							-box->margin[BOTTOM];
+					/* Out-of-flow boxes do not contribute collapsing margins. */
+					if (!layout_box_out_of_flow(box)) {
+						if (*max_pos_margin < box->margin[BOTTOM])
+							*max_pos_margin = box->margin[BOTTOM];
+						else if (*max_neg_margin < -box->margin[BOTTOM])
+							*max_neg_margin = -box->margin[BOTTOM];
+					}
 
 					box = box->parent;
 				} while (box != block && !box->next);
@@ -1233,17 +1250,25 @@ layout_next_margin_block(const css_unit_ctx *unit_len_ctx,
 				}
 			}
 
-			/* Apply bottom margin */
-			if (*max_pos_margin < box->margin[BOTTOM])
-				*max_pos_margin = box->margin[BOTTOM];
-			else if (*max_neg_margin < -box->margin[BOTTOM])
-				*max_neg_margin = -box->margin[BOTTOM];
+			/* Out-of-flow boxes do not contribute collapsing margins. */
+			if (!layout_box_out_of_flow(box)) {
+				if (*max_pos_margin < box->margin[BOTTOM])
+					*max_pos_margin = box->margin[BOTTOM];
+				else if (*max_neg_margin < -box->margin[BOTTOM])
+					*max_neg_margin = -box->margin[BOTTOM];
+			}
 
 			/* To next sibling. */
 			box = box->next;
+			while (box != NULL && layout_box_out_of_flow(box)) {
+				NSLOG(layout, DEBUG,
+				      "margin collapse: skipping out-of-flow sibling %p type=%d",
+				      box, box->type);
+				box = box->next;
+			}
 
 			/* Get margins */
-			if (box->style) {
+			if (box != NULL && box->style) {
 				layout_find_dimensions(unit_len_ctx,
 						box->parent->width,
 						viewport_height, box,
