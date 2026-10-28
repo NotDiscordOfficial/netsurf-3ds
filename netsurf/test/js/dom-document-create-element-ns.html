@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Document.createElementNS argument test</title>
+<link rel="stylesheet" type="text/css" href="tst.css">
+</head>
+<body>
+<h1>Document.createElementNS argument test</h1>
+<noscript><p>JavaScript is disabled</p></noscript>
+<script>
+(function () {
+    var result = "FAIL";
+    var detail = "createElementNS did not return the requested element name";
+
+    try {
+        var element = document.createElementNS("urn:netsurf:test", "widget");
+        if (element.nodeName === "widget") {
+            result = "PASS";
+            detail = "The namespace and qualified name were passed to the DOM correctly.";
+        } else {
+            detail = "Expected nodeName 'widget', got '" + element.nodeName + "'.";
+        }
+    } catch (error) {
+        detail = "createElementNS raised: " + error;
+    }
+
+    var output = document.createElement("p");
+    output.setAttribute("id", "result");
+    output.appendChild(document.createTextNode(result + ": " + detail));
+    document.body.appendChild(output);
+}());
+</script>
+</body>
+</html>
