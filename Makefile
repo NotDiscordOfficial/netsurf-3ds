@@ -67,6 +67,9 @@ NSLIB_RO_TARG := librufl libpencil
 
 # Build Environment
 export TARGET ?= framebuffer
+# Keep local development builds quick by default; pass `NOCIA=` to opt in to
+# makerom packaging (the CI workflow does this for release artifacts).
+NOCIA ?= 1
 TMP_PREFIX := $(CURDIR)/inst-$(TARGET)
 export PKG_CONFIG_PATH := $(TMP_PREFIX)/lib/pkgconfig:$(PKG_CONFIG_PATH)
 export PATH := $(PATH):$(TMP_PREFIX)/bin/
@@ -156,7 +159,7 @@ $(TMP_PREFIX)/build-stamp:
 	mkdir -p $(TMP_PREFIX)/bin
 	$(foreach L,$(NSLIB_TARG),$(call do_prefix_install,$(L)))
 	$(foreach L,$(NSBUILD_TARG),$(call do_build_prefix_install,$(L)))
-	$(MAKE) --directory=$(NETSURF_TARG) PREFIX=$(TMP_PREFIX) TARGET=$(TARGET) NOCIA=1 -j$(JOBS) $(NETSURF_CONFIG)
+	$(MAKE) --directory=$(NETSURF_TARG) PREFIX=$(TMP_PREFIX) TARGET=$(TARGET) NOCIA=$(NOCIA) -j$(JOBS) $(NETSURF_CONFIG)
 	cp $(NETSURF_TARG)/nsfb.3dsx nsfb.3dsx
 	touch $@
 
