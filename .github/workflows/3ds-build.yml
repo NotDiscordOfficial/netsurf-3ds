@@ -22,8 +22,8 @@ jobs:
         run: |
           apt-get update
           DEBIAN_FRONTEND=noninteractive apt-get install -y bison flex gperf libpng-dev libjpeg62-turbo-dev
-          curl -fsSL -o /tmp/makerom.zip https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.19.0/makerom-v0.19.0-ubuntu_x86_64.zip
-          echo '287b809dec064e0ad597e3d272c49ecb7eed41693d5ee6fef9d8a8aa24c2497e  /tmp/makerom.zip' | sha256sum -c -
+          curl -fsSL -o /tmp/makerom.zip https://github.com/3DSGuy/Project_CTR/releases/download/makerom-v0.18.4/makerom-v0.18.4-ubuntu_x86_64.zip
+          echo 'dd596854718c195c6e3229286be485b122921715555af8ae5cf8e9a465d9f970  /tmp/makerom.zip' | sha256sum -c -
           unzip -q /tmp/makerom.zip -d /tmp/makerom
           install -m 0755 /tmp/makerom/makerom /usr/local/bin/makerom
           test -x /usr/local/bin/makerom
